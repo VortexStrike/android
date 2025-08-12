@@ -500,6 +500,71 @@ class CipherViewExtensionsTest {
             }
     }
 
+    @Test
+    fun `toViewState should format credit card number in 4-digit groups when visible`() {
+        val cipherView = createCipherView(type = CipherType.CARD, isEmpty = false)
+            .copy(card = createMockCardView(number = 1, cardNumber = "1234567890123456"))
+        
+        // First call with isVisible = false (previous state = null)
+        val initialViewState = cipherView.toViewState(
+            previousState = null,
+            isPremiumUser = true,
+            totpCodeItemData = null,
+            clock = fixedClock,
+            canDelete = true,
+            canRestore = true,
+            canAssignToCollections = true,
+            canEdit = true,
+            baseIconUrl = "https://example.com/",
+            isIconLoadingDisabled = true,
+            relatedLocations = persistentListOf(),
+        )
+        
+        val cardType = initialViewState.asContentOrNull()?.type as VaultItemState.ViewState.Content.ItemType.Card
+        assertEquals("1234567890123456", cardType.number?.number) // Should be unformatted when not visible
+        assertEquals(false, cardType.number?.isVisible)
+        
+        // Second call with isVisible = true (using previous state)
+        val visibleViewState = cipherView.toViewState(
+            previousState = initialViewState.asContentOrNull(),
+            isPremiumUser = true,
+            totpCodeItemData = null,
+            clock = fixedClock,
+            canDelete = true,
+            canRestore = true,
+            canAssignToCollections = true,
+            canEdit = true,
+            baseIconUrl = "https://example.com/",
+            isIconLoadingDisabled = true,
+            relatedLocations = persistentListOf(),
+        )
+        
+        // Simulate showing the card number
+        val updatedViewState = visibleViewState.asContentOrNull()?.copy(
+            type = cardType.copy(
+                number = cardType.number?.copy(isVisible = true)
+            )
+        )?.let { content ->
+            cipherView.toViewState(
+                previousState = content,
+                isPremiumUser = true,
+                totpCodeItemData = null,
+                clock = fixedClock,
+                canDelete = true,
+                canRestore = true,
+                canAssignToCollections = true,
+                canEdit = true,
+                baseIconUrl = "https://example.com/",
+                isIconLoadingDisabled = true,
+                relatedLocations = persistentListOf(),
+            )
+        }
+        
+        val updatedCardType = updatedViewState?.asContentOrNull()?.type as? VaultItemState.ViewState.Content.ItemType.Card
+        assertEquals("1234 5678 9012 3456", updatedCardType?.number?.number) // Should be formatted when visible
+        assertEquals(true, updatedCardType?.number?.isVisible)
+    }
+
     private fun setupMockUri() {
         mockkStatic(Uri::class)
         val uriMock = mockk<Uri>()

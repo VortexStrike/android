@@ -155,13 +155,14 @@ fun CipherView.toViewState(
             CipherType.CARD -> {
                 VaultItemState.ViewState.Content.ItemType.Card(
                     cardholderName = card?.cardholderName,
-                    number = card?.number?.let {
+                    number = card?.number?.let { cardNumber ->
+                        val isVisible = (previousState?.type
+                            as? VaultItemState.ViewState.Content.ItemType.Card)
+                            ?.number
+                            ?.isVisible == true
                         VaultItemState.ViewState.Content.ItemType.Card.NumberData(
-                            number = it,
-                            isVisible = (previousState?.type
-                                as? VaultItemState.ViewState.Content.ItemType.Card)
-                                ?.number
-                                ?.isVisible == true,
+                            number = if (isVisible) cardNumber.formatCreditCardNumber() else cardNumber,
+                            isVisible = isVisible,
                         )
                     },
                     brand = card?.cardBrand,
@@ -356,3 +357,15 @@ private val CardView.expiration: String?
     )
         .joinToString("/")
         .orNullIfBlank()
+
+/**
+ * Formats a credit card number by grouping digits into 4-digit groups separated by spaces.
+ * This function preserves any existing non-digit characters and formats only the numeric parts.
+ */
+private fun String.formatCreditCardNumber(): String {
+    // Remove any existing spaces and keep only digits
+    val digitsOnly = this.filter { it.isDigit() }
+    
+    // Group digits into chunks of 4
+    return digitsOnly.chunked(4).joinToString(" ")
+}
