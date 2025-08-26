@@ -33,7 +33,6 @@ sealed class FlagKey<out T : Any> {
                 CredentialExchangeProtocolImport,
                 CredentialExchangeProtocolExport,
                 UserManagedPrivilegedApps,
-                RemoveCardPolicy,
             )
         }
     }
@@ -73,27 +72,10 @@ sealed class FlagKey<out T : Any> {
     }
 
     /**
-     * Data object holding the feature flag key to enable the removal of card item types.
-     * This flag will hide card types from organizations with policy enable and individual vaults
-     */
-    data object RemoveCardPolicy : FlagKey<Boolean>() {
-        override val keyName: String = "pm-16442-remove-card-item-type-policy"
-        override val defaultValue: Boolean = false
-    }
-
-    /**
      *  Indicates the state of Bitwarden authentication.
      */
     data object BitwardenAuthenticationEnabled : FlagKey<Boolean>() {
         override val keyName: String = "bitwarden-authentication-enabled"
-        override val defaultValue: Boolean = false
-    }
-
-    /**
-     * Represents the feature flag to enable the enrollment of AEAD on key rotation.
-     */
-    data object EnrollAeadOnKeyRotation : FlagKey<Boolean>() {
-        override val keyName: String = "enroll-aead-on-key-rotation"
         override val defaultValue: Boolean = false
     }
 
