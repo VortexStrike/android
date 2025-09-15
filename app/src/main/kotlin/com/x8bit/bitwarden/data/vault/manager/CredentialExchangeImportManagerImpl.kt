@@ -43,7 +43,7 @@ class CredentialExchangeImportManagerImpl(
                         )
                     },
                     folders = emptyList(),
-                    folderRelationships = emptyMap(),
+                    folderRelationships = emptyList(),
                 ),
             )
         }
